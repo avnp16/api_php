@@ -72,12 +72,32 @@ if ($method === "POST") {
     }
 } elseif ($method === "GET") {
     // Fetch all GST sales records with associated items (Read)
-    $sql = "SELECT gst_sales.id AS bill_id, customer_name, invoice_number, date, amount,
-                  taxable_value, cgst_amount, sgst_amount, igst_amount, round_off,
-                  bill_items.item_name, bill_items.quantity, bill_items.unit_price,
-                  bill_items.uqc, bill_items.gst_rate, bill_items.hsn_sac
-           FROM gst_sales
-           LEFT JOIN bill_items ON gst_sales.id = bill_items.bill_id";
+    $sql = "SELECT gst_sales.id AS bill_id, 
+                   customer_name, 
+                   invoice_number, 
+                   date, 
+                   amount, 
+                   taxable_value, 
+                   cgst_amount, 
+                   sgst_amount, 
+                   igst_amount, 
+                   round_off, 
+                   party_masters.party_name,     -- Include party master fields
+                   party_masters.mobile_no,
+                   party_masters.category,
+                   party_masters.gst_no,
+                   party_masters.address,
+                   party_masters.city,            -- Add city
+                   party_masters.state,
+                   bill_items.item_name, 
+                   bill_items.quantity, 
+                   bill_items.unit_price,
+                   bill_items.uqc, 
+                   bill_items.gst_rate, 
+                   bill_items.hsn_sac
+            FROM gst_sales
+            LEFT JOIN bill_items ON gst_sales.id = bill_items.bill_id
+            LEFT JOIN party_masters ON gst_sales.party_id = party_masters.id";
 
     $result = $conn->query($sql);
 
