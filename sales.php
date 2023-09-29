@@ -1,4 +1,8 @@
 <?php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Include the database connection file
 include("db.php");
 
@@ -20,16 +24,26 @@ if ($method === "POST") {
         isset($data["invoice_number"]) &&
         isset($data["date"]) &&
         isset($data["amount"]) &&
-        isset($data["items"])
+        isset($data["items"]) &&
+        isset($data["taxable_value"]) &&  // New field
+        isset($data["cgst_amount"]) &&    // New field
+        isset($data["sgst_amount"]) &&    // New field
+        isset($data["igst_amount"]) &&    // New field
+        isset($data["round_off"])         // New field
     ) {
         // Create the bill record in gst_sales table
         $customerName = $data["customer_name"];
         $invoiceNumber = $data["invoice_number"];
         $date = $data["date"];
         $amount = $data["amount"];
+        $taxableValue = $data["taxable_value"];  // New field
+        $cgstAmount = $data["cgst_amount"];      // New field
+        $sgstAmount = $data["sgst_amount"];      // New field
+        $igstAmount = $data["igst_amount"];      // New field
+        $roundOff = $data["round_off"];          // New field
 
-        $sql = "INSERT INTO gst_sales (customer_name, invoice_number, date, amount)
-                VALUES ('$customerName', '$invoiceNumber', '$date', $amount)";
+        $sql = "INSERT INTO gst_sales (customer_name, invoice_number, date, amount, taxable_value, cgst_amount, sgst_amount, igst_amount, round_off)
+                VALUES ('$customerName', '$invoiceNumber', '$date', $amount, $taxableValue, $cgstAmount, $sgstAmount, $igstAmount, $roundOff)";
 
         if ($conn->query($sql) === TRUE) {
             $billId = $conn->insert_id; // Get the ID of the newly created bill
@@ -59,6 +73,7 @@ if ($method === "POST") {
 } elseif ($method === "GET") {
     // Fetch all GST sales records with associated items (Read)
     $sql = "SELECT gst_sales.id AS bill_id, customer_name, invoice_number, date, amount,
+                  taxable_value, cgst_amount, sgst_amount, igst_amount, round_off,
                   bill_items.item_name, bill_items.quantity, bill_items.unit_price,
                   bill_items.uqc, bill_items.gst_rate, bill_items.hsn_sac
            FROM gst_sales
@@ -80,6 +95,11 @@ if ($method === "POST") {
                     "invoice_number" => $row["invoice_number"],
                     "date" => $row["date"],
                     "amount" => $row["amount"],
+                    "taxable_value" => $row["taxable_value"],   // New field
+                    "cgst_amount" => $row["cgst_amount"],       // New field
+                    "sgst_amount" => $row["sgst_amount"],       // New field
+                    "igst_amount" => $row["igst_amount"],       // New field
+                    "round_off" => $row["round_off"],           // New field
                     "items" => array()
                 );
             }
@@ -112,19 +132,34 @@ if ($method === "POST") {
         isset($data["customer_name"]) &&
         isset($data["invoice_number"]) &&
         isset($data["date"]) &&
-        isset($data["amount"])
+        isset($data["amount"]) &&
+        isset($data["taxable_value"]) &&  // New field
+        isset($data["cgst_amount"]) &&    // New field
+        isset($data["sgst_amount"]) &&    // New field
+        isset($data["igst_amount"]) &&    // New field
+        isset($data["round_off"])         // New field
     ) {
         $id = $data["id"];
         $customerName = $data["customer_name"];
         $invoiceNumber = $data["invoice_number"];
         $date = $data["date"];
         $amount = $data["amount"];
+        $taxableValue = $data["taxable_value"];  // New field
+        $cgstAmount = $data["cgst_amount"];      // New field
+        $sgstAmount = $data["sgst_amount"];      // New field
+        $igstAmount = $data["igst_amount"];      // New field
+        $roundOff = $data["round_off"];          // New field
 
         $sql = "UPDATE gst_sales SET
                 customer_name = '$customerName',
                 invoice_number = '$invoiceNumber',
                 date = '$date',
-                amount = $amount
+                amount = $amount,
+                taxable_value = $taxableValue,     -- Update the new fields
+                cgst_amount = $cgstAmount,
+                sgst_amount = $sgstAmount,
+                igst_amount = $igstAmount,
+                round_off = $roundOff
                 WHERE id = $id";
 
         if ($conn->query($sql) === TRUE) {
