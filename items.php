@@ -23,7 +23,8 @@ if ($method === "POST") {
         isset($data["item_gst_desc"]) &&
         isset($data["item_hsn"]) &&
         isset($data["gst_rate"]) &&
-        isset($data["item_uqc"])
+        isset($data["item_uqc"]) &&
+        isset($data["category"])  // New field
     ) {
         // Extract data from the request
         $itemName = $data["item_name"];
@@ -31,10 +32,11 @@ if ($method === "POST") {
         $itemHsn = $data["item_hsn"];
         $gstRate = $data["gst_rate"];
         $itemUqc = $data["item_uqc"];
+        $category = $data["category"];  // New field
 
         // Insert the new item into the item_master table
-        $sql = "INSERT INTO item_master (item_name, item_gst_desc, item_hsn, gst_rate, item_uqc)
-                VALUES ('$itemName', '$itemGstDesc', '$itemHsn', $gstRate, '$itemUqc')";
+        $sql = "INSERT INTO item_master (item_name, item_gst_desc, item_hsn, gst_rate, item_uqc, category)
+                VALUES ('$itemName', '$itemGstDesc', '$itemHsn', $gstRate, '$itemUqc', '$category')";
 
         if ($conn->query($sql) === TRUE) {
             $response["message"] = "Item created successfully";
@@ -68,7 +70,8 @@ if ($method === "POST") {
         isset($data["item_gst_desc"]) &&
         isset($data["item_hsn"]) &&
         isset($data["gst_rate"]) &&
-        isset($data["item_uqc"])
+        isset($data["item_uqc"]) &&
+        isset($data["category"])  // New field
     ) {
         // Extract data from the request
         $id = $data["id"];
@@ -77,6 +80,7 @@ if ($method === "POST") {
         $itemHsn = $data["item_hsn"];
         $gstRate = $data["gst_rate"];
         $itemUqc = $data["item_uqc"];
+        $category = $data["category"];  // New field
 
         // Update the item in the item_master table
         $sql = "UPDATE item_master SET
@@ -84,7 +88,8 @@ if ($method === "POST") {
                 item_gst_desc = '$itemGstDesc',
                 item_hsn = '$itemHsn',
                 gst_rate = $gstRate,
-                item_uqc = '$itemUqc'
+                item_uqc = '$itemUqc',
+                category = '$category'
                 WHERE id = $id";
 
         if ($conn->query($sql) === TRUE) {
