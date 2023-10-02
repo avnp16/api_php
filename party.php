@@ -32,11 +32,11 @@ if ($method === "POST") {
         $city = $data["city"];     // New field
         $state = $data["state"];
 
-        $sql = "INSERT INTO party_masters (party_name, mobile_no, category, gst_no, address, city, state)
-                VALUES ('$partyName', '$mobileNo', '$category', '$gstNo', '$address', '$city', '$state')";
+        $sql = "INSERT INTO party_masters (party_name, mobile_no, category, gst_no, address, city, state,creation)
+                VALUES ('$partyName', '$mobileNo', '$category', '$gstNo', '$address', '$city', '$state',NOW())";
 
         if ($conn->query($sql) === TRUE) {
-            $response["message"] = "Party record created successfully";
+            $response["message"] = "Party record created sccessfully";
         } else {
             $response["error"] = "Error creating party record: " . $conn->error;
         }
@@ -45,7 +45,15 @@ if ($method === "POST") {
     }
 } elseif ($method === "GET") {
     // Fetch all party records (Read)
-    $sql = "SELECT * FROM party_masters";
+    if (isset($_GET["id"])) {
+        // Fetch party record by ID
+        $id = $_GET["id"];
+        $sql = "SELECT * FROM party_masters WHERE id = $id";
+    } else {
+        // Fetch all party records
+        $sql = "SELECT * FROM party_masters ORDER BY creation DESC";
+    }
+
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
@@ -57,7 +65,7 @@ if ($method === "POST") {
     } else {
         $response["message"] = "No party records found";
     }
-} elseif ($method === "PUT") {
+}  elseif ($method === "PUT") {
     // Update a party record (Update)
     $data = json_decode(file_get_contents("php://input"), true);
 

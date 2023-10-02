@@ -1,0 +1,7 @@
+
+RewriteEngine On
+RewriteRule ^sales/?$ sales.php [NC,L]
+RewriteRule ^sales/([0-9]+)/?$ sales.php?id=$1 [NC,L]
+RewriteRule ^party/?$ party.php [NC,L]
+RewriteRule ^party/([0-9]+)/?$ party.php?id=$1 [NC,L]
+SetEnvIf Authorization .+ HTTP_AUTHORIZATION=$0
