@@ -6,15 +6,13 @@ ini_set('display_errors', 1);
 // Include the database configuration
 include('db.php');
 
-// Include the lcobucci/jwt library
-require __DIR__ . '/vendor/autoload.php';
+// Include the Firebase JWT library
+require 'vendor/autoload.php';
 
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Signer\Key; // Added this line
+use Firebase\JWT\JWT;
 
 // Your secret key for JWT
-$secretKey = 'd726ed8288909a30d6010e5de63237d0ab7a49b106032881e4573de01959dc46'; // Replace with your actual secret key
+$secretKey = '4795fc6d92c24250fd18a56fd9d3ec3437dc8ef225a736156113aa82ee190e21'; // Replace with your actual secret key
 
 try {
     // Read the incoming JSON data
@@ -49,17 +47,20 @@ try {
         if ($stmt->execute()) {
             $user_id = $stmt->insert_id;
 
-            // Create a new instance of the Builder
-            $tokenBuilder = (new Builder())
-                ->issuedAt(time())
-                ->expiresAt(time() + 3600) // Token expires in 1 hour
-                ->withClaim('user_id', $user_id);
+            // Generate a new JWT token
+            $token = [
+                'iss' => 'NILESH', // Replace with your issuer
+                'aud' => 'GST', // Replace with your audience
+                'iat' => time(),
+                'exp' => time() + 3600, // Token expires in 1 hour
+                'sub' => 'user-registration', // Subject (you can change this)
+                'user_id' => $user_id, // Include additional user data
+            ];
 
-            // Sign the token with the secret key
-            $token = $tokenBuilder->getToken(new Sha256(), new Key($secretKey));
+            $jwt = JWT::encode($token, $secretKey, 'HS256');
 
             http_response_code(200); // Success
-            echo json_encode(['message' => 'Registration successful', 'user_id' => $user_id, 'token' => $token->toString()]);
+            echo json_encode(['message' => 'Registration successful', 'user_id' => $user_id, 'token' => $jwt]);
         } else {
             http_response_code(500); // Internal Server Error
             echo json_encode(['error' => 'Registration failed']);

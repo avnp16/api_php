@@ -1,5 +1,5 @@
 {
     "require": {
-        "lcobucci/jwt": "^5.0"
+        "php": "^8.2"
     }
 }

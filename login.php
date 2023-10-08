@@ -6,14 +6,13 @@ ini_set('display_errors', 1);
 // Include the database configuration
 include('db.php');
 
-// Include the lcobucci/jwt library
-require __DIR__ . '/vendor/autoload.php';
+// Include the Firebase JWT library
+require 'vendor/autoload.php';
 
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Firebase\JWT\JWT;
 
 // Your secret key for JWT
-$secretKey = 'your-secret-key'; // Replace with your actual secret key
+$secretKey = '4795fc6d92c24250fd18a56fd9d3ec3437dc8ef225a736156113aa82ee190e21'; // Replace with your actual secret key
 
 try {
     // Read the incoming JSON data
@@ -41,19 +40,25 @@ try {
             echo json_encode(['error' => 'User not found']);
         } else {
             $user = $result->fetch_assoc();
-
+            
             // Verify the password
             if (password_verify($password, $user['password'])) {
                 $user_id = $user['user_id']; // Get the user_id
 
                 // Generate a new JWT token
-                $token = (new Builder())
-                    ->set('user_id', $user_id)
-                    ->sign(new Sha256(), $secretKey)
-                    ->getToken();
+                $token = [
+                    'iss' => 'NILESH', // Replace with your issuer
+                    'aud' => 'GST', // Replace with your audience
+                    'iat' => time(),
+                    'exp' => time() + 3600, // Token expires in 1 hour
+                    'sub' => 'user-login', // Subject (you can change this)
+                    'user_id' => $user_id, // Include additional user data
+                ];
+
+                $jwt = JWT::encode($token, $secretKey, 'HS256');
 
                 http_response_code(200); // Success
-                echo json_encode(['message' => 'Login successful', 'user_id' => $user_id, 'token' => (string) $token]);
+                echo json_encode(['message' => 'Login successful', 'user_id' => $user_id, 'token' => $jwt]);
             } else {
                 http_response_code(401); // Unauthorized
                 echo json_encode(['error' => 'Invalid password']);
@@ -61,17 +66,14 @@ try {
         }
     } else {
         http_response_code(500); // Internal Server Error
-        echo json_encode(['error' => 'Database query error']);
+        echo json_encode(['error' => 'Database error']);
     }
 
-    // Close the statement
+    // Close the statement and the database connection
     $stmt->close();
-
+    $conn->close();
 } catch (Exception $e) {
     http_response_code(500); // Internal Server Error
     echo json_encode(['error' => $e->getMessage()]);
 }
-
-// Close the database connection (optional, as it will be included in db.php)
-$conn->close();
 ?>
